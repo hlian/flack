@@ -1,0 +1,30 @@
+@import url("reset.css");
+
+#css-wrapper {
+    max-width: 1024px;
+    margin: 0 auto;
+    background: white;
+    padding: 2em 10px;
+}
+
+body {
+    background: #dee;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+p.name {
+}
+
+#wall-done img {
+    max-width: 250px;
+    line-height: 1.2;
+}
+
+h1 {
+    font-family: Menlo, monospace;
+    font-weight: bold;
+}
+
+#wall-done p {
+    margin: 0.75em 0;
+}
