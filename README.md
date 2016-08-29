@@ -43,5 +43,7 @@
 • in a third tab,
   cd to here
   and run `nginx -c nginx.conf -p $(pwd)`
+• in a browser, go to
+  http://localhost:3000/
 
 ~~~
