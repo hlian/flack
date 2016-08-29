@@ -1,15 +1,30 @@
 @import url("reset.css");
+@import url("box-sizing-trick.css");
 
 #css-wrapper {
     max-width: 1024px;
     margin: 0 auto;
+    border: 1px red;
+}
+
+.css-content {
+    margin-left: 7rem;
     background: white;
-    padding: 2em 10px;
+    padding: 1rem 0.5rem;
+}
+
+html {
+    font-family: -apple-system, Arial, sans-serif;
+    font-size: 15pt;
+}
+
+* {
+    font-family: inherit;
 }
 
 body {
     background: #dee;
-    font-family: Helvetica, Arial, sans-serif;
+    line-height: 13pt;
 }
 
 p.name {
@@ -26,5 +41,16 @@ h1 {
 }
 
 #wall-done p {
-    margin: 0.75em 0;
+    margin-top: 0.75em;
+}
+
+.css-left-sidebar {
+    float: left;
+    max-width: 7rem;
+    font-size: 8pt;
+    padding: 4rem 1rem;
+}
+
+.css-textarea {
+    padding: 0.5rem;
 }
