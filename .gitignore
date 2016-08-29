@@ -1,2 +1,5 @@
+# node artifacts
 node_modules
-*.log
+
+# build artifacts
+web/public/bundle.js
