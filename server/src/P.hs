@@ -27,7 +27,6 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Text as Text
 
-import           Data.Aeson.Types
 import           System.Console.ANSI
 
 (.:=) :: Aeson.ToJSON a => Text -> a -> Aeson.Pair

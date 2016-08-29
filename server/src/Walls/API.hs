@@ -25,9 +25,9 @@ apiProxy = Proxy
 
 apiImp :: Server API
 apiImp =
-  return (XWall "@haoformayor" "http://i.imgur.com/NaijsSY.jpg" posts)
+  return (XWall "@haoformayor" "http://i.imgur.com/NaijsSY.jpg" posts_)
   where
-    posts =
+    posts_ =
       [ XPost "@friend" "hi friend"
       , XPost "@enemy" "hi enemy"
       ]
