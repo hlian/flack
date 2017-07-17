@@ -19,7 +19,6 @@ import           Control.Lens as X
 import           Data.Aeson as X hiding ((.=))
 import           Data.Aeson.TH as X
 import           Data.ByteString (ByteString)
-import           Data.String.Interpolate as X
 import           Data.Text (Text)
 import           Data.Text.Strict.Lens as X
 

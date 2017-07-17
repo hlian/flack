@@ -168,6 +168,7 @@ extra-deps:
 - zlib-0.6.1.2
 - cabal-doctest-1.0.2
 - wreq-0.5.0.2
+- uri-encode-1.5.0.5
 compiler-check: match-exact
 compiler: ghc-8.2.0.20170704
 resolver: ghc-8.2.0.20170704

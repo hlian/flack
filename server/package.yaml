@@ -9,29 +9,35 @@ dependencies:
   - base-prelude
   - bytestring
   - containers
-  - interpolate
   - lens
+  - lens-aeson
   - lifted-base
+  - mtl
   - servant
   - servant-server
   - template-haskell
   - text
+  - uri-encode
   - wai
   - warp
   - wreq == 0.5.0.2
 default-extensions:
+  - ApplicativeDo
   - DataKinds
+  - DeriveGeneric
   - FlexibleContexts
   - FunctionalDependencies
   - GADTs
+  - LambdaCase
   - MultiParamTypeClasses
   - NoImplicitPrelude
   - OverloadedLists
   - OverloadedStrings
   - QuasiQuotes
   - RankNTypes
+  - RecordWildCards
   - ScopedTypeVariables
-  - TemplateHaskell
+  - StrictData
   - TypeFamilies
   - TypeOperators
 executables:

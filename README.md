@@ -7,13 +7,16 @@
 
 ## <b>ingredients</b>
 
-  • <i>brew install yarn watchify</i>
+  • <i>brew install yarn</i>
 
   • <a href="https://github.com/commercialhaskell/stack/releases">a working stack installation</a>
 
   • cd to web/
-    and run <i>yarn</i>
+     • <i>yarn</i>
 
+  • [NEW & DIFFERENT]
+    copy etc/env.sh to env.sh
+    and fill in details
 
 ## <b>development</b>
 
@@ -23,7 +26,8 @@
 
   • in a second tab,
     cd to server/
-    and run <i>stack build --fast --file-watch --exec walls</i>
+    • run <i>source ../env.sh</i>
+    • run <i>stack build --fast --file-watch --exec walls</i>
 
   • in a third tab,
     cd to here
