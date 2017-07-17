@@ -3,7 +3,7 @@ flags:
     old-locale: false
 ghc-options:
   walls: -W -Werror -threaded -rtsopts -with-rtsopts=-N -with-rtsopts=-A512m -with-rtsopts=-n8m
-    -with-rtsopts=-gq
+    -with-rtsopts=-qg1
 setup-info:
   ghc:
     windows64:
