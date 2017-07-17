@@ -18,7 +18,7 @@ dependencies:
   - text
   - wai
   - warp
-  - wreq
+  - wreq == 0.5.0.2
 default-extensions:
   - DataKinds
   - FlexibleContexts
