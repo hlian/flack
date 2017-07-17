@@ -1,5 +1,2 @@
-# node artifacts
-node_modules
-
 # build artifacts
 web/public/bundle.js
