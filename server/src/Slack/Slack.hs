@@ -27,7 +27,7 @@ authorizeURL T{..} =
            , ("team", team)
            ]
 
-access :: T -> Text -> IO ()
+access :: T -> Text -> IO (Either Text Secret)
 access T{..} code = do
   let opts =
         Wreq.defaults & param "client_id" .~ [clientID]
@@ -35,7 +35,22 @@ access T{..} code = do
                       & param "code" .~ [code]
                       & param "redirect_uri" .~ [redirectURI]
   resp <- Wreq.getWith opts "https://slack.com/api/oauth.access"
-  print (resp ^. Wreq.responseBody . _Object)
+  let suffix = resp ^. Wreq.responseBody . to show . packed
+  case resp ^? Wreq.responseBody . _Object of
+    Nothing ->
+      pure (Left $ "body not a JSON object: " <> suffix)
+    Just body ->
+      case resp ^? Wreq.responseBody . key "ok" . _Bool of
+        Nothing ->
+          pure (Left $ "unrecognized slack response: " <> suffix)
+        Just False ->
+          pure (Left $ "slack is unhappy: " <> suffix)
+        Just True ->
+          case body ^? at "access_token" . _Just . _String of
+            Nothing ->
+              pure (Left $ "slack messed up: " <> suffix)
+            Just token ->
+              pure (Right (Secret token))
   where
     param = Wreq.param
 

@@ -36,6 +36,21 @@ port =
               t { listen𝓕 = proto <> ":" <> name <> ":" <> (view packed . show) newPort }
             _ -> error "invalid listen")
 
+path :: Lens' T Text
+path =
+  lens (\T{..} -> case Text.splitOn "://" listen𝓕 of
+            [_, rest] -> case Text.splitOn "/" rest of
+              [_, path_] -> "/" <> path_
+              args -> err args
+            args -> err args)
+        (\t@T{..} newPath -> case Text.splitOn "://" listen𝓕 of
+            [proto, rest] -> case Text.splitOn "/" rest of
+              [addr, _] -> t { listen𝓕 = proto <> "://" <> addr <> newPath }
+              args -> err args
+            args -> err args)
+  where
+    err x = error ("invalid listen: " <> show x)
+
 clientID :: Lens' T Text
 clientID =
   lens (\T{..} -> clientID𝓕) (\t new -> t { clientID𝓕 = new })
