@@ -7,14 +7,17 @@ dependencies:
   - ansi-terminal
   - base
   - base-prelude
+  - base64-bytestring
   - bytestring
   - containers
+  - cryptonite
   - lens
   - lens-aeson
   - lifted-base
   - mtl
   - servant
   - servant-server
+  - stm
   - template-haskell
   - text
   - uri-encode

@@ -2,6 +2,7 @@ module P (
   module X
   , Text
   , ByteString
+  , Secret(..)
   , Aeson.typeMismatch
   , (.:=)
   , say
@@ -27,6 +28,8 @@ import qualified Data.Aeson.Types as Aeson
 import qualified Data.Text as Text
 
 import           System.Console.ANSI
+
+newtype Secret = Secret Text
 
 (.:=) :: Aeson.ToJSON a => Text -> a -> Aeson.Pair
 (.:=) = (Aeson..=)

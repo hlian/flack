@@ -7,9 +7,6 @@ import qualified Network.Wreq as Wreq
 import           Data.Aeson.Lens
 import           P
 
--- Unshowable, unencodable
-newtype Secret = Secret Text
-
 data T =
   T { clientID :: Text
     , clientSecret:: Secret

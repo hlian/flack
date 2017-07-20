@@ -1,15 +1,15 @@
 module Config.Config where
 
+import qualified CheapDB.CheapDB as CheapDB
 import qualified Data.Text as Text
 import           P
-
-newtype Secret = Secret Text
 
 data T =
   T { listen𝓕 :: Text
     , clientID𝓕 :: Text
     , clientSecret𝓕 :: Secret
     , team𝓕 :: Text
+    , db𝓕 :: CheapDB.T Text Secret
     }
 
 readConfig :: IO T
@@ -18,6 +18,7 @@ readConfig = do
   clientID𝓕 <- _grab "clientid" `orelse` "missing client id"
   clientSecret𝓕 <- _grab "clientsecret" `orelse` "missing client secret" & fmap Secret
   team𝓕 <- _grab "team" `orelse` "missing team"
+  db𝓕 <- CheapDB.new
   pure T{..}
   where
     orelse :: IO (Maybe Text) -> String -> IO Text
@@ -66,6 +67,10 @@ listen =
 team :: Lens' T Text
 team =
   lens (\T{..} -> team𝓕) (\t new -> t { team𝓕 = new })
+
+db :: Lens' T (CheapDB.T Text Secret)
+db =
+  lens (\T{..} -> db𝓕) (\t new -> t { db𝓕 = new })
 
 _grab :: String -> IO (Maybe Text)
 _grab = (fmap . fmap) (view packed) . lookupEnv . ("flack" <>)

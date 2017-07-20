@@ -1,13 +1,17 @@
 module Walls.API.OAuth where
 
+import qualified Crypto.Random.Types as Crypto
+import qualified Data.ByteString.Base64 as Base64
+
 import           Control.Monad.Except
 import           Servant.API
 import           Servant.Server
 
+import qualified CheapDB.CheapDB as CheapDB
 import qualified Config.Config as Config
 import qualified Slack.Slack as Slack
 
-import           P hiding (Handler)
+import           P hiding (Handler, id)
 import           Walls.Utils.Servant
 
 data XRedirect =
@@ -36,7 +40,7 @@ type API =
 imp :: Config.T -> IO (Server API)
 imp config = do
   let auth = Slack.T { clientID = view Config.clientID config
-                     , clientSecret = view (Config.clientSecret . coerced) config
+                     , clientSecret = view Config.clientSecret config
                      , redirectURI = view Config.listen config <> "api/oauth/redirect"
                      , team = view Config.team config
                      }
@@ -45,22 +49,26 @@ imp config = do
 
 _redirect :: Config.T -> Slack.T -> Maybe Text -> Maybe Text -> Handler ()
 _redirect config auth codeM _ = do
-  case codeM of
-    Just code -> do
-      tokenEither <- liftIO $ Slack.access auth code
-      case tokenEither of
-        Left e -> do
-          throwError err400 { errBody = view lazy (utf8 # ("unable to grab access token: " <> e)) }
-        Right token -> do
-          let session = Session { token = view coerced token
-                                , maxAge = Days 14
-                                }
-          let headers = [ ("Set-Cookie", utf8 # encodeSession config session)
-                        , ("Location", utf8 # (view Config.listen config <> "api/oauth/debug"))
-                        ]
-          throwError err303 { errHeaders = headers }
-    _ ->
-      throwError err400 { errBody = "needed a code and a state" }
+  code <- cleanM "missing ?code" codeM
+  tokenEither <- liftIO $ Slack.access auth code
+  token <- cleanE ("access problem: " <>) tokenEither
+  id <- liftIO _randomText
+  liftIO . void $ CheapDB.write db id token
+  let session = Session { id = id , maxAge = Days 14 }
+  let headers = [ ("Set-Cookie", utf8 # encodeSession config session)
+                , ("Location", utf8 # (view Config.listen config <> "api/oauth/debug"))
+                ]
+  throwError err303 { errHeaders = headers }
+  where
+    db = view Config.db config
+    cleanM :: ByteString -> Maybe a -> Handler a
+    cleanM e = \case
+      Just a -> pure a
+      Nothing -> throwError err400 { errBody = view lazy e }
+    cleanE :: (e -> Text) -> Either e a -> Handler a
+    cleanE f = \case
+      Right a -> pure a
+      Left e -> throwError err400 { errBody = view (re utf8 . lazy) (f e) }
 
 _debug :: Maybe Text -> Handler XDebug
 _debug = \case
@@ -68,3 +76,8 @@ _debug = \case
     throwError $ err400 { errBody = "unauthorized" }
   Just cookie ->
     pure (XDebug cookie)
+
+_randomText :: IO Text
+_randomText = do
+  (bytes :: ByteString) <- Crypto.getRandomBytes 128
+  pure (Base64.encode bytes & view utf8)
