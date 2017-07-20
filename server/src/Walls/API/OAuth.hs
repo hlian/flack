@@ -1,7 +1,8 @@
 module Walls.API.OAuth where
 
 import qualified Crypto.Random.Types as Crypto
-import qualified Data.ByteString.Base64 as Base64
+import qualified Data.ByteString.Base16 as Base16
+import qualified Data.Text as Text
 
 import           Control.Monad.Except
 import           Servant.API
@@ -21,31 +22,37 @@ data XRedirect =
             , redirectURI :: Text
             } deriving (Show, Generic)
 
-data XDebug =
-  XDebug { debug :: Text } deriving (Show, Generic)
+data XRead =
+  XRead { id :: Maybe Text, slack :: Text } deriving (Show, Generic)
 
 instance ToJSON XRedirect
 
-instance ToJSON XDebug
+instance ToJSON XRead
 
 type RedirectAPI =
   "oauth" :> "redirect" :> QueryParam "code" Text :> QueryParam "state" Text :> Get' ()
 
-type DebugAPI =
-  "oauth" :> "debug" :> Header "Cookie" Text :> Get' XDebug
+type ReadAPI =
+  "oauth" :> Header "Cookie" Text :> Get' XRead
+
+type DeleteAPI =
+  "oauth" :> "delete" :> Get' ()
 
 type API =
-  RedirectAPI :<|> DebugAPI
+  ReadAPI :<|> RedirectAPI :<|> DeleteAPI
 
 imp :: Config.T -> IO (Server API)
 imp config = do
   let auth = Slack.T { clientID = view Config.clientID config
                      , clientSecret = view Config.clientSecret config
-                     , redirectURI = view Config.listen config <> "api/oauth/redirect"
+                     , redirectURI = Config.listen config <> "api/oauth/redirect"
                      , team = view Config.team config
                      }
-  warn ("main: hit this: " <> show (Slack.authorizeURL auth))
-  pure (_redirect config auth :<|> _debug)
+  pure (_read auth :<|> _redirect config auth :<|> _delete config)
+
+_new :: Slack.T -> Handler Text
+_new auth = do
+  pure (Slack.authorizeURL auth)
 
 _redirect :: Config.T -> Slack.T -> Maybe Text -> Maybe Text -> Handler ()
 _redirect config auth codeM _ = do
@@ -56,7 +63,7 @@ _redirect config auth codeM _ = do
   liftIO . void $ CheapDB.write db id token
   let session = Session { id = id , maxAge = Days 14 }
   let headers = [ ("Set-Cookie", utf8 # encodeSession config session)
-                , ("Location", utf8 # (view Config.listen config <> "api/oauth/debug"))
+                , ("Location", utf8 # (Config.listen config <> "api/oauth"))
                 ]
   throwError err303 { errHeaders = headers }
   where
@@ -70,14 +77,23 @@ _redirect config auth codeM _ = do
       Right a -> pure a
       Left e -> throwError err400 { errBody = view (re utf8 . lazy) (f e) }
 
-_debug :: Maybe Text -> Handler XDebug
-_debug = \case
-  Nothing ->
-    throwError $ err400 { errBody = "unauthorized" }
-  Just cookie ->
-    pure (XDebug cookie)
+_read :: Slack.T -> Maybe Text -> Handler XRead
+_read auth idM =
+  pure (XRead (fmap parse idM) (Slack.authorizeURL auth))
+  where
+    parse t = case Text.splitOn "=" t of
+      [_, v] -> v
+      _ -> error "bad cookie"
+
+_delete :: Config.T -> Handler ()
+_delete config = do
+  let session = Session { id = "" , maxAge = Days 14 }
+  let headers = [ ("Set-Cookie", utf8 # encodeSession config session)
+                , ("Location", utf8 # (Config.listen config <> "api/oauth"))
+                ]
+  throwError err303 { errHeaders = headers }
 
 _randomText :: IO Text
 _randomText = do
-  (bytes :: ByteString) <- Crypto.getRandomBytes 128
-  pure (Base64.encode bytes & view utf8)
+  (bytes :: ByteString) <- Crypto.getRandomBytes 16
+  pure (Base16.encode bytes & view utf8)

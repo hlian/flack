@@ -2,6 +2,7 @@
 
 module Walls.Utils.Servant where
 
+import qualified Network.URI.Encode as URI
 import           Servant.API
 
 import qualified Config.Config as Config
@@ -23,9 +24,7 @@ data Session =
 encodeSession :: Config.T -> Session -> Text
 encodeSession config Session{..} = do
   let path = view Config.path config
-  let days = view coerced maxAge :: Int
-  let seconds = days * 24 * 60 * 60
-  "id=" <> id <> "; HttpOnly; Max-Age=" <> view (to show . packed) seconds <> "; Path=" <> path
+  "id=" <> URI.encodeText id <> "; path=" <> path <> ";domain=" <> view Config.addr config
 
 decodeSession :: Text -> Maybe Session
 decodeSession x = error (show x)

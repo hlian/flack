@@ -7,7 +7,7 @@ dependencies:
   - ansi-terminal
   - base
   - base-prelude
-  - base64-bytestring
+  - base16-bytestring
   - bytestring
   - containers
   - cryptonite

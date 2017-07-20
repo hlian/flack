@@ -1,11 +1,12 @@
 module Config.Config where
 
 import qualified CheapDB.CheapDB as CheapDB
-import qualified Data.Text as Text
 import           P
 
 data T =
-  T { listen𝓕 :: Text
+  T { addr𝓕 :: Text
+    , port𝓕 :: Int
+    , path𝓕 :: Text
     , clientID𝓕 :: Text
     , clientSecret𝓕 :: Secret
     , team𝓕 :: Text
@@ -14,7 +15,9 @@ data T =
 
 readConfig :: IO T
 readConfig = do
-  listen𝓕 <- _grab "listen" `orelse` "missing listen"
+  addr𝓕 <- _grab "addr" `orelse` "missing addr"
+  port𝓕 <- _grab "port" `orelse` "missing port" & fmap (read . view unpacked)
+  path𝓕 <- _grab "path" `orelse` "missing path"
   clientID𝓕 <- _grab "clientid" `orelse` "missing client id"
   clientSecret𝓕 <- _grab "clientsecret" `orelse` "missing client secret" & fmap Secret
   team𝓕 <- _grab "team" `orelse` "missing team"
@@ -27,31 +30,6 @@ readConfig = do
         Just t -> pure t
         Nothing -> error message
 
-port :: Lens' T Int
-port =
-  lens (\T{..} -> case Text.splitOn ":" listen𝓕 of
-            [_, _, port_] -> read (view unpacked port_)
-            _ -> error ("invalid listen: " <> show listen𝓕))
-        (\t@T{..} newPort -> case Text.splitOn ":" listen𝓕 of
-            [proto, name, _] ->
-              t { listen𝓕 = proto <> ":" <> name <> ":" <> (view packed . show) newPort }
-            _ -> error "invalid listen")
-
-path :: Lens' T Text
-path =
-  lens (\T{..} -> case Text.splitOn "://" listen𝓕 of
-            [_, rest] -> case Text.splitOn "/" rest of
-              [_, path_] -> "/" <> path_
-              args -> err args
-            args -> err args)
-        (\t@T{..} newPath -> case Text.splitOn "://" listen𝓕 of
-            [proto, rest] -> case Text.splitOn "/" rest of
-              [addr, _] -> t { listen𝓕 = proto <> "://" <> addr <> newPath }
-              args -> err args
-            args -> err args)
-  where
-    err x = error ("invalid listen: " <> show x)
-
 clientID :: Lens' T Text
 clientID =
   lens (\T{..} -> clientID𝓕) (\t new -> t { clientID𝓕 = new })
@@ -60,9 +38,23 @@ clientSecret :: Lens' T Secret
 clientSecret =
   lens (\T{..} -> clientSecret𝓕) (\t new -> t { clientSecret𝓕 = new })
 
-listen :: Lens' T Text
-listen =
-  lens (\T{..} -> listen𝓕) (\t new -> t { listen𝓕 = new })
+addr :: Lens' T Text
+addr =
+  lens (\T{..} -> addr𝓕) (\t new -> t { addr𝓕 = new })
+
+port :: Lens' T Int
+port =
+  lens (\T{..} -> port𝓕) (\t new -> t { port𝓕 = new })
+
+path :: Lens' T Text
+path =
+  lens (\T{..} -> path𝓕) (\t new -> t { path𝓕 = new })
+
+listen :: T -> Text
+listen config =
+  case view port config of
+    80 -> "http://" <> view addr config <> view path config
+    _ -> "http://" <> view addr config <> ":" <> view packed (show (view port config)) <> view path config
 
 team :: Lens' T Text
 team =
