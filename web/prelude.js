@@ -1,20 +1,36 @@
-'use strict'
+// "fetch" global
+import 'whatwg-fetch'
 
 window._j = JSON.stringify
 
 window._a = (o) => {
   if (o === null) {
-    throw new Error("unexpected null");
+    throw new Error("unexpected null")
   }
-  return o;
+  return o
 }
 
+// [Log] {credentials: "same-origin", headers: {Accept: "application/json", Content-type: "application/json"}} (bundle.js, line 22522)
+// {credentials: "include", headers: {Accept: "application/json", Content-type: "application/json"}}
+// {credentials: "same-origin", headers: {Accept: "application/json", Content-type: "application/json"}}
+
 window._fetchJSON = (url, opts = {}) => {
-  Object.assign(opts, {
-    headers: {
-      "Accept": "application/json",
-      "Content-type": "application/json"
-    }
+  const copy = Object.assign({}, opts)
+  copy.headers = new window.Headers({
+    "Accept": "application/json",
+    "Content-type": "application/json"
   })
-  return fetch(url, opts).then(x => x.json())
+  copy.credentials = "same-origin"
+  return window.fetch(url, copy).then(x => {
+    if (x.ok) return x.json()
+    throw new Error(x)
+  })
+}
+
+window._byID = (id) => {
+  const o = document.getElementById(id)
+  if (o === null) {
+    throw new Error("_byID: could not find #" + id)
+  }
+  return o
 }
