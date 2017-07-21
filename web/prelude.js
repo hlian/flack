@@ -1,4 +1,3 @@
-// "fetch" global
 import 'whatwg-fetch'
 
 window._j = JSON.stringify
@@ -9,10 +8,6 @@ window._a = (o) => {
   }
   return o
 }
-
-// [Log] {credentials: "same-origin", headers: {Accept: "application/json", Content-type: "application/json"}} (bundle.js, line 22522)
-// {credentials: "include", headers: {Accept: "application/json", Content-type: "application/json"}}
-// {credentials: "same-origin", headers: {Accept: "application/json", Content-type: "application/json"}}
 
 window._fetchJSON = (url, opts = {}) => {
   const copy = Object.assign({}, opts)
@@ -34,3 +29,5 @@ window._byID = (id) => {
   }
   return o
 }
+
+export * from "./prelude/haskell"

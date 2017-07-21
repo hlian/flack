@@ -34,7 +34,6 @@ export default class Auth extends Component {
 
   render() {
     const state = _a(this.state)
-    console.log("render", this.state)
     if (state.status === Status.NEW) return this._renderNew()
     if (state.status === Status.SOON) return this._renderSoon()
     if (state.status === Status.LOADING) return this._renderLoading()
@@ -67,8 +66,10 @@ export default class Auth extends Component {
     return (
       <div>
         <h2>[authenticate]</h2>
-        <p>Before doing any work, Flack needs to authenticate as you with Slack.</p>
-        <p>Drink me: <button onClick={(e) => this._renderNewClick(e)}>Authenticate</button></p>
+        <p>
+          Before doing any work, Flack needs to authenticate as you with Slack.
+          <button onClick={(e) => this._renderNewClick(e)}>Drink Me</button>
+        </p>
       </div>
     )
   }
@@ -78,8 +79,7 @@ export default class Auth extends Component {
       <div>
         <h2>[authenticate]</h2>
         <p>You are authenticated! Your session ID is <code>{this.state.goodID}</code>.</p>
-        <p>Other websites won't show you your session ID. This one will, and does.</p>
-        <p>Your session will end as soon as you quit your browser.</p>
+        <p className="css-sub">Other websites won't show you your session ID. This one will, and does. Your session will end as soon as you quit your browser.</p>
       </div>
     )
   }
