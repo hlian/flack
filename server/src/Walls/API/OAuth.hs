@@ -79,11 +79,11 @@ _redirect config auth codeM _ = do
 
 _read :: Slack.T -> Maybe Text -> Handler XRead
 _read auth idM =
-  pure (XRead (fmap parse idM) (Slack.authorizeURL auth))
+  pure (XRead (idM >>= parse) (Slack.authorizeURL auth))
   where
-    parse t = case Text.splitOn "=" t of
-      [_, v] -> v
-      _ -> error "bad cookie"
+    parse t = case (Text.splitOn "=" t) ^? ix 1 of
+      Just v -> pure v
+      _ -> Nothing
 
 _delete :: Config.T -> Handler ()
 _delete config = do

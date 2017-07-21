@@ -57,3 +57,7 @@ h1 {
 code {
   font-family: "Fira Code", Menlo, monospace;
 }
+
+.css-sub {
+  color: #668;
+}
