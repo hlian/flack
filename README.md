@@ -22,7 +22,7 @@
 
   • in one tab,
     cd to web/
-    and run <i>yarn start</i>
+    and run <i>yarn webpack -- --watch</i>
 
   • in a second tab,
     cd to server/
