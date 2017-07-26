@@ -61,3 +61,11 @@ code {
 .css-sub {
   color: #668;
 }
+
+.css-bad {
+  color: #f77;
+}
+
+#component-files {
+  margin-top: 1.5rem;
+}

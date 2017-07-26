@@ -22,14 +22,16 @@ export default class Auth extends Component {
   }
 
   componentDidMount() {
-    _fetchJSON("/api/oauth")
-      .then(data => {
-        if (data.id !== null && data.id !== "") {
-          this.setState({status: Status.GOOD, goodID: _a(data.id)})
-        } else {
-          this.setState({status: Status.SOON, soonURL: _a(data.slack)})
-        }
-      })
+    _fetchJSON("/api/oauth").then(data => {
+      if (data.id !== null && data.id !== "") {
+        this.setState({status: Status.GOOD, goodID: _a(data.id)})
+        window._broadcast(data.id)
+      } else {
+        this.setState({status: Status.SOON, soonURL: _a(data.slack)})
+      }
+    }).catch(reason => {
+      this.setState({status: Status.BAD, response: reason.response})
+    })
   }
 
   render() {
@@ -37,9 +39,9 @@ export default class Auth extends Component {
     if (state.status === Status.NEW) return this._renderNew()
     if (state.status === Status.SOON) return this._renderSoon()
     if (state.status === Status.LOADING) return this._renderLoading()
-    if (state.status === Status.ERROR) return this._renderBad()
     if (state.status === Status.POPUP) return this._renderPopup()
     if (state.status === Status.GOOD) return this._renderGood()
+    if (state.status === Status.BAD) return this._renderBad()
     console.trace("render(): partial")
     return null
   }
@@ -99,11 +101,11 @@ export default class Auth extends Component {
   }
 
   _renderBad() {
-    const e = _a(this.state.error)
+    const e = _a(this.state.response)
     return (
       <div>
         <h2>[authenticate]</h2>
-        <p>Unable to authenticate: <code>{e}</code></p>
+        <p className="css-bad">Unexpected error while talking to {e.url}: HTTP {e.status} {e.statusText}.</p>
       </div>
     )
   }
