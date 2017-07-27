@@ -11,10 +11,12 @@ module P (
 
 import           BasePrelude as X hiding ((&)
                                          , lazy
+                                         , id
                                          , index
                                          , uncons
                                          , bracket
-                                         , finally)
+                                         , finally
+                                         , Handler)
 import           Control.Exception.Lifted as X (bracket, finally)
 import           Control.Lens as X
 import           Data.Aeson as X hiding ((.=))

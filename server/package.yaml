@@ -43,6 +43,7 @@ default-extensions:
   - StrictData
   - TypeFamilies
   - TypeOperators
+  - ViewPatterns
 executables:
   walls:
     main: Main.hs

@@ -12,7 +12,7 @@ import qualified CheapDB.CheapDB as CheapDB
 import qualified Config.Config as Config
 import qualified Slack.Slack as Slack
 
-import           P hiding (Handler, id)
+import           P
 import           Walls.Utils.Servant
 
 data XRedirect =
@@ -48,7 +48,7 @@ imp config = do
                      , redirectURI = Config.listen config <> "api/oauth/redirect"
                      , team = view Config.team config
                      }
-  pure (_read auth :<|> _redirect config auth :<|> _delete config)
+  pure (_read config auth :<|> _redirect config auth :<|> _delete config)
 
 _new :: Slack.T -> Handler Text
 _new auth = do
@@ -77,13 +77,14 @@ _redirect config auth codeM _ = do
       Right a -> pure a
       Left e -> throwError err400 { errBody = view (re utf8 . lazy) (f e) }
 
-_read :: Slack.T -> Maybe Text -> Handler XRead
-_read auth idM =
-  pure (XRead (idM >>= parse) (Slack.authorizeURL auth))
-  where
-    parse t = case (Text.splitOn "=" t) ^? ix 1 of
-      Just v -> pure v
-      _ -> Nothing
+_read :: Config.T -> Slack.T -> Maybe Text -> Handler XRead
+_read config auth cookie = do
+  secretMaybe <- fromSessionMaybe config cookie
+  case secretMaybe of
+    Just _ ->
+      pure (XRead cookie (Slack.authorizeURL auth))
+    Nothing -> do
+      pure (XRead Nothing (Slack.authorizeURL auth))
 
 _delete :: Config.T -> Handler ()
 _delete config = do
