@@ -1,4 +1,4 @@
-kimport '../prelude'
+import '../prelude'
 import React, { Component } from 'react'
 
 const Status = Object.freeze({
@@ -59,11 +59,22 @@ export default class Files extends Component {
   }
 
   _renderGood() {
+    const toRow = (blob) =>
+          <tr><td><a href="{blob.url}">{blob.id}</a></td><td>{blob.size}</td><td>{blob.name}</td><td>{JSON.stringify(blob.channels)}</td></tr>
     return (
       <div>
         <h2>[files]</h2>
-        <p>Good</p>
-        <pre className="css-code-blob">{JSON.stringify(this.state.data, null, 2)}</pre>
+        <table>
+          <thead>
+            <th>ID & URL</th>
+            <th>Size</th>
+            <th>Name</th>
+            <th>Channels</th>
+          </thead>
+          <tbody>
+            {this.state.data.map(toRow)}
+          </tbody>
+        </table>
       </div>
     )
   }
