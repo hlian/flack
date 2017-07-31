@@ -1,6 +1,7 @@
 module Main where
 
 import           Network.Wai.Handler.Warp (run)
+import qualified Network.Wai.Middleware.RequestLogger as Wai
 
 import           Servant.Server
 
@@ -12,7 +13,10 @@ main :: IO ()
 main = do
   config <- Config.readConfig
   server <- apiImp config
-  finally (run 4000 (serve apiProxy server)) cleanup
+  warn "walls: running on :4000; use nginx to reverse-proxy to me ._."
+  finally (run 4000 (middleware $ serve apiProxy server)) cleanup
   where
     cleanup =
-      warn "main: and i had just begun to learn how to love"
+      warn "walls: and i had just begun to learn how to love"
+    middleware =
+      Wai.logStdoutDev

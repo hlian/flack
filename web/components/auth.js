@@ -81,7 +81,7 @@ export default class Auth extends Component {
       <div>
         <h2>[authenticate]</h2>
         <p>You are authenticated! Your session ID is <code>{this.state.goodID}</code>.</p>
-        <p className="css-sub">Other websites won't show you your session ID. This one will, and does. Your session will end as soon as you quit your browser.</p>
+        <p className="css-sub">Other websites won't show you your session ID; what are they hiding? Your session will end as soon as you quit your browser.</p>
       </div>
     )
   }
