@@ -81,11 +81,12 @@ _redirect config auth (decodeSession -> sessionM) codeM = do
 
 _read :: Config.T -> Slack.T -> Maybe Text -> Handler XRead
 _read config auth cookie = do
+  let sessionMaybe = decodeSession cookie
   secretMaybe <- fromSessionMaybe config cookie
-  case secretMaybe of
-    Just _ ->
-      pure (XRead cookie (Slack.authorizeURL auth))
-    Nothing -> do
+  case (sessionMaybe, secretMaybe) of
+    (Just Session{..}, Just _) ->
+      pure (XRead (Just id) (Slack.authorizeURL auth))
+    _ -> do
       pure (XRead Nothing (Slack.authorizeURL auth))
 
 _delete :: Config.T -> Handler ()

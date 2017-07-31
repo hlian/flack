@@ -75,3 +75,18 @@ code, .css-code-blob {
 #component-files {
   margin-top: 1.5rem;
 }
+
+table {
+  border-top: 0.125rem solid #420;
+  border-bottom: 0.125rem solid #420;
+  margin:0.5rem 0;
+  border-collapse: collapse;
+}
+
+table td {
+  padding: 0.125rem 3px;
+}
+
+table thead tr {
+  border-bottom: 0.125rem solid #420;
+}

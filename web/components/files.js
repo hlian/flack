@@ -59,8 +59,34 @@ export default class Files extends Component {
   }
 
   _renderGood() {
+    if (this.state.data.length === 0) {
+      return (
+        <div>
+          <h2>[files]</h2>
+          <p>You have no files! Thank you for visiting <b>[flack]</b>. Now you are free to go.</p>
+        </div>
+      )
+    }
+
+    const pretty = (x) => {
+      if (x > 1024 * 1024 * 1024) {
+        return (x / 1024 / 1024 / 1024).toFixed(1) + " GB"
+      }
+      if (x > 1024 * 1024) {
+        return (x / 1024 / 1024).toFixed(1) + " MB"
+      }
+      if (x > 1024) {
+        return (x / 1024).toFixed(1) + " KB"
+      }
+      return x + " B"
+    }
     const toRow = (blob) => {
-      return <tr key={blob.id}><td><a href={blob.url}>{blob.id}</a></td><td>{blob.size}</td><td>{blob.name}</td><td>{JSON.stringify(blob.channels)}</td></tr>
+      return <tr key={blob.id}>
+        <td><a href={blob.url}>{blob.id}</a></td>
+        <td>{pretty(blob.size)}</td>
+        <td><em>{blob.name}</em></td>
+        <td>{JSON.stringify(blob.channels)}</td>
+      </tr>
     }
     return (
       <div>

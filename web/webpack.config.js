@@ -5,6 +5,7 @@ module.exports = {
     index: "./index.js",
     redirect: "./redirect.js"
   },
+  stats: "minimal",
   output: {
     path: path.resolve(__dirname, "../public"),
     filename: "_[name].js"
