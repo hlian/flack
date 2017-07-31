@@ -1,11 +1,13 @@
 const path = require("path")
 
 module.exports = {
-  entry: "./index.js",
-  stats: "minimal",
+  entry: {
+    index: "./index.js",
+    redirect: "./redirect.js"
+  },
   output: {
     path: path.resolve(__dirname, "../public"),
-    filename: "bundle.js"
+    filename: "_[name].js"
   },
   module: {
     rules: [
