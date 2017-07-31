@@ -1,7 +1,6 @@
 module Walls.API.OAuth where
 
-import qualified Crypto.Random.Types as Crypto
-import qualified Data.ByteString.Base16 as Base16
+import qualified Crypto.Hash as Crypto
 
 import           Control.Monad.Except
 import           Servant.API
@@ -29,7 +28,7 @@ instance ToJSON XRedirect
 instance ToJSON XRead
 
 type RedirectAPI =
-  "oauth" :> "redirect" :> QueryParam "code" Text :> QueryParam "state" Text :> Get' ()
+  "oauth" :> "redirect" :> Header "Cookie" Text :> QueryParam "code" Text :> Post' ()
 
 type ReadAPI =
   "oauth" :> Header "Cookie" Text :> Get' XRead
@@ -44,7 +43,7 @@ imp :: Config.T -> IO (Server API)
 imp config = do
   let auth = Slack.T { clientID = view Config.clientID config
                      , clientSecret = view Config.clientSecret config
-                     , redirectURI = Config.listen config <> "api/oauth/redirect"
+                     , redirectURI = Config.listen config <> "redirect.html"
                      , team = view Config.team config
                      }
   pure (_read config auth :<|> _redirect config auth :<|> _delete config)
@@ -54,19 +53,23 @@ _new auth = do
   pure (Slack.authorizeURL auth)
 
 _redirect :: Config.T -> Slack.T -> Maybe Text -> Maybe Text -> Handler ()
-_redirect config auth codeM _ = do
-  code <- cleanM "missing ?code" codeM
-  tokenEither <- liftIO $ Slack.access auth code
-  token <- cleanE ("access problem: " <>) tokenEither
-  id <- liftIO _randomText
-  liftIO . void $ CheapDB.write db id token
-  let session = Session { id = id , maxAge = Days 14 }
-  let headers = [ ("Set-Cookie", utf8 # encodeSession config session)
-                , ("Location", utf8 # (Config.listen config <> "api/oauth"))
-                ]
-  throwError err303 { errHeaders = headers }
+_redirect config auth (decodeSession -> sessionM) codeM = do
+  case (sessionM, codeM) of
+    (Just Session{..}, Just code) |
+      _hash code == id -> throwError err303 { errHeaders = location }
+    _ -> do
+      code <- cleanM "missing ?code" codeM
+      tokenEither <- liftIO $ Slack.access auth code
+      token <- cleanE ("access problem: " <>) tokenEither
+      let id = _hash code
+      liftIO . void $ CheapDB.write db id token
+      let session = Session { id = id , maxAge = Days 14 }
+      let cookies = [("Set-Cookie", utf8 # encodeSession config session)]
+      throwError err303 { errHeaders = cookies <> location }
   where
     db = view Config.db config
+    location =
+      [("Location", utf8 # (Config.listen config <> "api/oauth"))]
     cleanM :: ByteString -> Maybe a -> Handler a
     cleanM e = \case
       Just a -> pure a
@@ -93,7 +96,6 @@ _delete config = do
                 ]
   throwError err303 { errHeaders = headers }
 
-_randomText :: IO Text
-_randomText = do
-  (bytes :: ByteString) <- Crypto.getRandomBytes 16
-  pure (Base16.encode bytes & view utf8)
+_hash :: Text -> Text
+_hash input =
+  view packed $ show (Crypto.hash (utf8 # input) :: Crypto.Digest Crypto.MD5)

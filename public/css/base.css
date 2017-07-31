@@ -56,6 +56,8 @@ h1 {
 
 code, .css-code-blob {
   font-family: "Fira Code", Menlo, monospace;
+  font-size: 0.85rem;
+  vertical-align: middle;
 }
 
 .css-sub {

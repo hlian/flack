@@ -59,18 +59,19 @@ export default class Files extends Component {
   }
 
   _renderGood() {
-    const toRow = (blob) =>
-          <tr><td><a href="{blob.url}">{blob.id}</a></td><td>{blob.size}</td><td>{blob.name}</td><td>{JSON.stringify(blob.channels)}</td></tr>
+    const toRow = (blob) => {
+      return <tr key={blob.id}><td><a href={blob.url}>{blob.id}</a></td><td>{blob.size}</td><td>{blob.name}</td><td>{JSON.stringify(blob.channels)}</td></tr>
+    }
     return (
       <div>
         <h2>[files]</h2>
         <table>
-          <thead>
+          <thead><tr>
             <th>ID & URL</th>
             <th>Size</th>
             <th>Name</th>
             <th>Channels</th>
-          </thead>
+          </tr></thead>
           <tbody>
             {this.state.data.map(toRow)}
           </tbody>

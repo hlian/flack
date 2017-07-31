@@ -32,7 +32,7 @@ access T{..} code = do
                       & param "code" .~ [code]
                       & param "redirect_uri" .~ [redirectURI]
   resp <- Wreq.getWith opts "https://slack.com/api/oauth.access"
-  let suffix = resp ^. Wreq.responseBody . to show . packed
+  let suffix = resp ^. Wreq.responseBody . strict . utf8
   case resp ^? Wreq.responseBody . _Object of
     Nothing ->
       pure (Left $ "body not a JSON object: " <> suffix)

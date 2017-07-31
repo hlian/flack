@@ -31,11 +31,16 @@ encodeSession config Session{..} = do
   let path = view Config.path config
   "id=" <> URI.encodeText id <> "; path=" <> path <> ";domain=" <> view Config.addr config
 
+decodeSession :: Maybe Text -> Maybe Session
+decodeSession (fromMaybe "" -> t) = do
+  id <- (Text.splitOn "=" t) ^? ix 1
+  pure (Session { id = id, maxAge = Days 14 })
+
 fromSession :: Config.T -> Maybe Text -> Handler Secret
-fromSession config (fromMaybe mempty -> t) = do
+fromSession config t = do
   let db = view Config.db config
-  case (Text.splitOn "=" t) ^? ix 1 of
-    Just id -> do
+  case decodeSession t of
+    Just Session{..} -> do
       tokenM <- liftIO $ CheapDB.read db id
       case tokenM of
         Nothing ->
@@ -46,10 +51,10 @@ fromSession config (fromMaybe mempty -> t) = do
       throwError err401 { errBody = "no cookie" }
 
 fromSessionMaybe :: Config.T -> Maybe Text -> Handler (Maybe Secret)
-fromSessionMaybe config (fromMaybe mempty -> t) = do
+fromSessionMaybe config t = do
   let db = view Config.db config
-  case (Text.splitOn "=" t) ^? ix 1 of
-    Just id -> do
+  case decodeSession t of
+    Just Session{..} -> do
       liftIO $ CheapDB.read db id
     _ ->
       pure Nothing
