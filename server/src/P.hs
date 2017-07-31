@@ -13,6 +13,7 @@ import           BasePrelude as X hiding ((&)
                                          , lazy
                                          , id
                                          , index
+                                         , loop
                                          , uncons
                                          , bracket
                                          , finally

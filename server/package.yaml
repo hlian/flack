@@ -1,7 +1,7 @@
 name: walls
 version: 0.1.0
 ghc-options:
-  -Wall -threaded -rtsopts -with-rtsopts=-N -with-rtsopts=-A128m -with-rtsopts=-n8m
+  -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -threaded -rtsopts -with-rtsopts=-N -with-rtsopts=-A128m -with-rtsopts=-n8m
 dependencies:
   - aeson
   - ansi-terminal

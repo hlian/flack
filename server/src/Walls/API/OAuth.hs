@@ -2,7 +2,6 @@ module Walls.API.OAuth where
 
 import qualified Crypto.Random.Types as Crypto
 import qualified Data.ByteString.Base16 as Base16
-import qualified Data.Text as Text
 
 import           Control.Monad.Except
 import           Servant.API
