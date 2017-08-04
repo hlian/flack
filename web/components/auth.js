@@ -23,12 +23,9 @@ export default class Auth extends Component {
 
   componentDidMount() {
     _fetchJSON("/api/oauth").then(data => {
-      if (data.id !== null && data.id !== "") {
-        this.setState({status: Status.GOOD, goodID: _a(data.id)})
-        window._broadcast(data.id)
-      } else {
+      this._absorbOAuth(data, () => {
         this.setState({status: Status.SOON, soonURL: _a(data.slack)})
-      }
+      })
     }).catch(reason => {
       this.setState({status: Status.BAD, response: reason.response})
     })
@@ -69,7 +66,7 @@ export default class Auth extends Component {
       <div>
         <h2>[authenticate]</h2>
         <p>
-          Before doing any work, Flack needs to authenticate as you with Slack.
+          Before doing any work, Flack needs to authenticate as you with Slack.&nbsp;
           <button onClick={(e) => this._renderNewClick(e)}>Drink Me</button>
         </p>
       </div>
@@ -87,8 +84,15 @@ export default class Auth extends Component {
   }
 
   _renderNewClick(e) {
-    window.open(_a(this.state.soonURL), "[flack:authenticate]", "height=600;width=800")
+    const child = window.open(_a(this.state.soonURL), "[flack:authenticate]", "height=600,width=800")
     this.setState(update(this.state, {status: {$set: Status.POPUP}}))
+    const timer = setInterval(() => {
+      if (child.closed) {
+        _fetchJSON("/api/oauth").then(data => {
+          this._absorbOAuth(data, () => clearInterval(timer))
+        }).catch(_ => clearInterval(timer))
+      }
+    }, 300)
   }
 
   _renderPopup() {
@@ -108,5 +112,12 @@ export default class Auth extends Component {
         <p className="css-bad">Unexpected error while talking to {e.url}: HTTP {e.status} {e.statusText}.</p>
       </div>
     )
+  }
+
+  _absorbOAuth(data, orElse) {
+    if (data.id !== null && data.id !== "") {
+      this.setState({status: Status.GOOD, goodID: _a(data.id)})
+      window._broadcast(data.id)
+    } else orElse()
   }
 }
