@@ -86,7 +86,7 @@ export default class Files extends Component {
         <td><a href={blob.url}>{blob.id}</a></td>
         <td>{pretty(blob.size)}</td>
         <td><em>{blob.name}</em></td>
-        <td>{JSON.stringify(blob.channels)}</td>
+        <td>{JSON.stringify(blob.groups.concat(blob.ims))}</td>
         <td>{this.props.children.archiveFactory(blob.id)}</td>
       </tr>
     }
@@ -98,7 +98,7 @@ export default class Files extends Component {
             <th>ID & URL</th>
             <th>Size</th>
             <th>Name</th>
-            <th>Channels</th>
+            <th>Groups + IMs</th>
             <th>Verbs</th>
           </tr></thead>
           <tbody>

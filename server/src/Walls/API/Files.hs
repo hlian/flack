@@ -21,6 +21,8 @@ data XFile =
         , size :: Integer
         , url :: Text
         , channels :: [Text]
+        , groups :: [Text]
+        , ims :: [Text]
         } deriving (Show, Generic)
 
 instance ToJSON XFile
@@ -54,7 +56,7 @@ _allFilesFromSlack secret =
           pure (_top 10 $ files ++ rest)
 
 _top :: Int -> [XFile] -> [XFile]
-_top n = take n . sortBy (comparing (Down . size))
+_top n = take n . filter (\c -> length (channels c) == 0) . sortBy (comparing (Down . size))
 
 _filesFromSlack :: Secret -> Int -> IO [XFile]
 _filesFromSlack secret page = do
@@ -63,7 +65,6 @@ _filesFromSlack secret page = do
                       & param "count" .~ ["1000"]
                       & param "page" .~ [show page & view packed]
   resp <- Wreq.getWith opts "https://slack.com/api/files.list"
-  print opts
   pure (resp ^.. Wreq.responseBody . key "files" . values & fmap _toXFile)
   where
     param = Wreq.param
@@ -75,3 +76,5 @@ _toXFile v =
         (fromMaybe 0 $ v ^? key "size" . _Integer)
         (v ^. key "url_private" . _String)
         (v ^.. key "channels" . _Array . traverse & map (view _String))
+        (v ^.. key "groups" . _Array . traverse & map (view _String))
+        (v ^.. key "ims" . _Array . traverse & map (view _String))
