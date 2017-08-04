@@ -1,5 +1,6 @@
 import '../prelude'
 import React, { Component } from 'react'
+import Archive from './archive'
 
 const Status = Object.freeze({
   NEW: Symbol("new"),
@@ -25,7 +26,7 @@ export default class Files extends Component {
       _fetchJSON("/api/files").then(data => {
         that.setState({status: Status.GOOD, data: data})
       }).catch(reason => {
-        that.setState({status: Status.BAD, response: reason.response})
+        that.setState({status: Status.BAD, reason: reason})
       })
     })
   }
@@ -86,6 +87,7 @@ export default class Files extends Component {
         <td>{pretty(blob.size)}</td>
         <td><em>{blob.name}</em></td>
         <td>{JSON.stringify(blob.channels)}</td>
+        <td>{this.props.children.archiveFactory(blob.id)}</td>
       </tr>
     }
     return (
@@ -97,6 +99,7 @@ export default class Files extends Component {
             <th>Size</th>
             <th>Name</th>
             <th>Channels</th>
+            <th>Verbs</th>
           </tr></thead>
           <tbody>
             {this.state.data.map(toRow)}
@@ -107,12 +110,17 @@ export default class Files extends Component {
   }
 
   _renderBad() {
-    const e = _a(this.state.response)
-    return (
-      <div>
-        <h2>[files]</h2>
-        <p className="css-bad">Unexpected error while talking to <code>{e.url}</code>: HTTP {e.status} {e.statusText}.</p>
-      </div>
-    )
+    const reason = _a(this.state.reason)
+    const response = reason.resonse
+    if (response) {
+      return (
+        <div>
+          <h2>[files]</h2>
+          <p className="css-bad">Unexpected error while talking to <code>{e.url}</code>: HTTP {e.status} {e.statusText}.</p>
+        </div>
+      )
+    } else {
+      throw reason
+    }
   }
 }

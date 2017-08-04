@@ -16,7 +16,7 @@ data T =
 
 authorizeURL :: T -> Text
 authorizeURL T{..} =
-  "https://slack.com/oauth/authorize?" <> _encode opts
+  "https://friendsofjack.slack.com/oauth/authorize?" <> _encode opts
   where
     opts = [ ("client_id", clientID)
            , ("scope", "users:read files:read files:write:user") -- stolen from Deletron

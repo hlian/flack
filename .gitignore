@@ -1,3 +1,4 @@
 /env.sh
 public/_*.js
+public/_*.js.map
 

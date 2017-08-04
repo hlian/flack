@@ -77,11 +77,11 @@ export default class Auth extends Component {
   }
 
   _renderGood() {
+    const silly = "Other websites won't show you your session ID; what are they hiding? Your session will end as soon as you quit your browser."
     return (
       <div>
         <h2>[authenticate]</h2>
-        <p>You are authenticated! Your session ID is <code>{this.state.goodID}</code>.</p>
-        <p className="css-sub">Other websites won't show you your session ID; what are they hiding? Your session will end as soon as you quit your browser.</p>
+        <p>You are authenticated! Your session ID is <abbr title={silly}><code>{this.state.goodID}</code></abbr>.</p>
       </div>
     )
   }

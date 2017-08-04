@@ -48,10 +48,6 @@ imp config = do
                      }
   pure (_read config auth :<|> _redirect config auth :<|> _delete config)
 
-_new :: Slack.T -> Handler Text
-_new auth = do
-  pure (Slack.authorizeURL auth)
-
 _redirect :: Config.T -> Slack.T -> Maybe Text -> Maybe Text -> Handler ()
 _redirect config auth (decodeSession -> sessionM) codeM = do
   case (sessionM, codeM) of

@@ -5,6 +5,7 @@ module.exports = {
     index: "./index.js",
     redirect: "./redirect.js"
   },
+  devtool: "source-map",
   stats: "minimal",
   output: {
     path: path.resolve(__dirname, "../public"),

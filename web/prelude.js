@@ -3,7 +3,7 @@ import 'whatwg-fetch'
 window._j = JSON.stringify
 
 window._a = (o) => {
-  if (o === null) {
+  if (o === null || o === undefined) {
     throw new Error("unexpected null")
   }
   return o
